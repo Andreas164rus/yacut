@@ -1,5 +1,6 @@
 from flask import flash, redirect, render_template, abort
-from .utils import object_short_link, short_link_in_db_exists, collect_short_link
+from .utils import (object_short_link, short_link_in_db_exists,
+                    collect_short_link)
 from . import app, db
 from .forms import URLSForm
 from .models import URLMap

@@ -5,7 +5,7 @@ from flask import url_for
 
 
 class URLMap(db.Model):
-    id = db.Column(db.Integer, nullable=True) 
+    id = db.Column(db.Integer, nullable=True)
     original = db.Column(db.Text, nullable=False, unique=True)
     short = db.Column(db.String(16), primary_key=True,)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
