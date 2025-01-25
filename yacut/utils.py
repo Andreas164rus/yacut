@@ -5,11 +5,13 @@ from flask import url_for
 from .models import URLMap
 
 
-def get_random_string(lenght=MAX_LENGHT_URL):
-    string = ''
-    for _ in range(lenght):
-        string += choice(ALL_SYMBOLS)
-    return string
+def get_unique_short_id():
+    while True:
+        string = ''
+        for _ in range(MAX_LENGHT_URL):
+            string += choice(ALL_SYMBOLS)
+        if not URLMap.query.filter_by(short=string).first():
+            return string
 
 
 def collect_short_link(short):
@@ -18,23 +20,9 @@ def collect_short_link(short):
                    _external=True)
 
 
-def object_short_link(original, short=None):
-    if short is None:
-        new_short = False
-        while not new_short:
-            short = get_random_string()
-            if URLMap.query.filter_by(short=short).first():
-                continue
-            new_short = True
+def object_short_link(original, short):
     url_map = URLMap(
         original=original,
         short=short
     )
     return url_map
-
-
-def short_link_in_db_exists(short_link):
-    return (
-        short_link and
-        URLMap.query.filter_by(short=short_link).first() is not None
-    )

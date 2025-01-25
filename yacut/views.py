@@ -1,35 +1,26 @@
 from flask import flash, redirect, render_template, abort
-from .utils import (object_short_link, short_link_in_db_exists,
-                    collect_short_link)
+from .utils import (object_short_link,
+                    collect_short_link, get_unique_short_id)
 from . import app, db
 from .forms import URLSForm
 from .models import URLMap
-from .constants import SHORT_LINK_IN_DB, NO_VALID_SHORT_LINK
-from .validation import validation_short_link
+from .constants import SHORT_LINK_IN_DB
 
 
 @app.route('/', methods=['GET', 'POST'])
-def get_unique_short_id():
+def index():
     form = URLSForm()
     if form.validate_on_submit():
         original_link = form.original_link.data
-        short_link = form.custom_id.data
-        if URLMap.query.filter_by(original=original_link).first() is not None:
-            url_map = URLMap.query.filter_by(original=original_link).first()
-            flash(f'{collect_short_link(url_map.short)}')
-            return render_template('index.html', form=form)
-        if short_link_in_db_exists(short_link):
+        custom_id = form.custom_id.data
+        if not custom_id:
+            custom_id = get_unique_short_id()
+        if URLMap.query.filter_by(short=custom_id).first() is not None:
             flash(f'{SHORT_LINK_IN_DB}')
-            return render_template('index.html', form=form)
-        if short_link:
-            if not validation_short_link(short_link):
-                flash(NO_VALID_SHORT_LINK)
-                return render_template('main.html', form=form)
-            url_map = object_short_link(original_link, short_link)
-            flash(collect_short_link(url_map.short))
-        else:
-            url_map = object_short_link(original_link)
-            flash(collect_short_link(url_map.short))
+            return render_template('main.html', form=form)
+        url_map = object_short_link(original_link, custom_id)
+        flash(f"<a href='{collect_short_link(url_map.short)}'>"
+              f"{collect_short_link(url_map.short)}</a>")
         db.session.add(url_map)
         db.session.commit()
     return render_template('main.html', form=form)
@@ -37,7 +28,7 @@ def get_unique_short_id():
 
 @app.route('/<string:short_link>', methods=['GET'])
 def redirect_a_short_link(short_link):
-    if URLMap.query.filter_by(short=short_link).first():
-        link = URLMap.query.get(short_link)
+    link = URLMap.query.filter_by(short=short_link).first()
+    if link:
         return redirect(link.original)
     abort(404)

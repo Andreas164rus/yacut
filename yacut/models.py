@@ -5,9 +5,9 @@ from flask import url_for
 
 
 class URLMap(db.Model):
-    id = db.Column(db.Integer, nullable=True)
+    id = db.Column(db.Integer, primary_key=True, )
     original = db.Column(db.Text, nullable=False, unique=True)
-    short = db.Column(db.String(16), primary_key=True,)
+    short = db.Column(db.String(16), nullable=False, unique=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     def to_dict(self):
@@ -17,8 +17,3 @@ class URLMap(db.Model):
                                short_link=self.short,
                                _external=True),
         )
-
-# Про поле id.
-# По ТЗ явно напрашивается (ИМХО) поле short основым индексом.
-# Но тесты обязатльно трубуют поле id, иначе не проходят
-# Надеюсь на понимание
