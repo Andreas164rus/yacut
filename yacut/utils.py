@@ -20,7 +20,7 @@ def collect_short_link(short):
                    _external=True)
 
 
-def object_short_link(original, short):
+def create_object_short_link(original, short):
     url_map = URLMap(
         original=original,
         short=short

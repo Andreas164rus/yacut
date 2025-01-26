@@ -1,10 +1,13 @@
-from .constants import ALL_SYMBOLS
+import re
+
+from .constants import MAX_LENGHT_SHORT_LINK, REGEX_VALIDATE
 
 
 def validation_short_link(short_link):
-    if len(short_link) > 16:
+    if len(short_link) > MAX_LENGHT_SHORT_LINK:
         return False
-    for symbol in short_link:
-        if symbol not in ALL_SYMBOLS:
-            return False
-    return True
+    validated_part_short_link = re.search(REGEX_VALIDATE, short_link)
+    if (validated_part_short_link and
+            validated_part_short_link.group() == short_link):
+        return True
+    return False
